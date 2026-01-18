@@ -177,11 +177,27 @@ body {
     background-color: var(--secondary-color);
 }
 
+.music-category {
+    margin-bottom: 4rem;
+}
+
+.music-category:last-child {
+    margin-bottom: 0;
+}
+
+.category-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+    border-left: 4px solid var(--accent-color);
+    padding-left: 1rem;
+}
+
 .music-embeds {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
-    margin-top: 2rem;
 }
 
 .music-embeds iframe {
