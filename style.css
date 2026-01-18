@@ -217,7 +217,9 @@ body::before {
 
 .music-embeds iframe {
     border-radius: 8px;
-    max-width: 100%;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto !important;
 }
 
 .embed-placeholder {
