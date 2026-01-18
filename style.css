@@ -59,6 +59,19 @@ body::before {
     align-items: center;
 }
 
+.logo-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+    mix-blend-mode: screen;
+    margin-left: -15px;
+}
+
 .dj-name {
     font-size: 1.8rem;
     font-weight: 700;
