@@ -59,10 +59,16 @@ body::before {
     align-items: center;
 }
 
-.dj-name {
-    font-size: 1.8rem;
-    font-weight: 700;
-    letter-spacing: 2px;
+.logo-brand {
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 50px;
+    width: auto;
+    margin-left: -12px;
+    mix-blend-mode: screen;
 }
 
 .nav {
