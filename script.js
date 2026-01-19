@@ -15,64 +15,118 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     const gallery = document.querySelector('.photo-gallery');
-    if (!gallery) return;
+    const leftBtn = document.querySelector('.left-btn');
+    const rightBtn = document.querySelector('.right-btn');
 
-    // Initial setup: find which images are already in the DOM to avoid immediate duplication
-    const existingPhotos = gallery.querySelectorAll('.gallery-photo');
-    const existingSrcs = Array.from(existingPhotos).map(img => {
-        // Extract filename from src
-        const src = img.getAttribute('src');
-        return src;
-    });
+    if (!gallery || !leftBtn || !rightBtn) return;
 
-    let nextIndex = 0;
-    // Find the first image in the array that isn't currently displayed
-    for (let i = 0; i < images.length; i++) {
-        if (!existingSrcs.includes(images[i])) {
-            nextIndex = i;
-            break;
-        }
-    }
+    let currentIndex = 0; // Index of the first image currently displayed
+    let isTransitioning = false;
 
-    function rotateGallery() {
-        const nextImgSrc = images[nextIndex];
+    function createPhotoNode(index) {
         const newPhoto = document.createElement('img');
-        newPhoto.src = nextImgSrc;
+        newPhoto.src = images[index];
         newPhoto.alt = 'SØRB Performance';
         newPhoto.classList.add('gallery-photo');
+        return newPhoto;
+    }
 
-        // Set initial state for transition
+    function shiftRight() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        // "When the right button is clicked, the right most picture goes away
+        // and the other 2 pictures shift to right and a new picture comes to left."
+
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        const newPhoto = createPhotoNode(currentIndex);
+
+        // Initial state for prepended photo
         newPhoto.style.flex = '0 0 0';
         newPhoto.style.opacity = '0';
         newPhoto.style.margin = '0';
+        newPhoto.style.padding = '0';
 
-        // Prepend to gallery
         gallery.insertBefore(newPhoto, gallery.firstChild);
 
         // Trigger entrance animation
         setTimeout(() => {
             newPhoto.style.flex = ''; // Revert to CSS defined flex-basis
             newPhoto.style.opacity = '1';
+            newPhoto.style.margin = '';
+            newPhoto.style.padding = '';
         }, 50);
 
-        // Identify all photos and animate out the last one
         const photos = gallery.querySelectorAll('.gallery-photo');
-        // We expect photos.length to be 4 now (3 original + 1 prepended)
-        if (photos.length > (window.innerWidth <= 768 ? 1 : 3)) {
+        const numVisible = window.innerWidth <= 768 ? 1 : 3;
+
+        if (photos.length > numVisible) {
             const lastPhoto = photos[photos.length - 1];
             lastPhoto.style.flex = '0 0 0';
             lastPhoto.style.opacity = '0';
             lastPhoto.style.margin = '0';
+            lastPhoto.style.padding = '0';
 
             setTimeout(() => {
                 lastPhoto.remove();
-            }, 850); // Match CSS transition time
+                isTransitioning = false;
+            }, 850);
+        } else {
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 850);
         }
-
-        // Increment index for next time
-        nextIndex = (nextIndex + 1) % images.length;
     }
 
-    // Rotate every 3 seconds
-    setInterval(rotateGallery, 3000);
+    function shiftLeft() {
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        // "When the left button is clicked, the left most picture goes away
+        // and the other 2 pictures shift to left and a new picture comes to right."
+
+        const numVisible = window.innerWidth <= 768 ? 1 : 3;
+        const nextImageIndex = (currentIndex + numVisible) % images.length;
+        const newPhoto = createPhotoNode(nextImageIndex);
+
+        // Initial state for appended photo
+        newPhoto.style.flex = '0 0 0';
+        newPhoto.style.opacity = '0';
+        newPhoto.style.margin = '0';
+        newPhoto.style.padding = '0';
+
+        gallery.appendChild(newPhoto);
+
+        // Trigger entrance animation
+        setTimeout(() => {
+            newPhoto.style.flex = '';
+            newPhoto.style.opacity = '1';
+            newPhoto.style.margin = '';
+            newPhoto.style.padding = '';
+        }, 50);
+
+        const photos = gallery.querySelectorAll('.gallery-photo');
+
+        if (photos.length > numVisible) {
+            const firstPhoto = photos[0];
+            firstPhoto.style.flex = '0 0 0';
+            firstPhoto.style.opacity = '0';
+            firstPhoto.style.margin = '0';
+            firstPhoto.style.padding = '0';
+
+            setTimeout(() => {
+                firstPhoto.remove();
+                currentIndex = (currentIndex + 1) % images.length;
+                isTransitioning = false;
+            }, 850);
+        } else {
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % images.length;
+                isTransitioning = false;
+            }, 850);
+        }
+    }
+
+    rightBtn.addEventListener('click', shiftRight);
+    leftBtn.addEventListener('click', shiftLeft);
 });
