@@ -151,14 +151,14 @@ body::before {
 }
 
 .about-content {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
 .about-text {
     font-size: 1.1rem;
     line-height: 1.8;
-    text-align: justify;
+    text-align: center;
 }
 
 .about-intro {
