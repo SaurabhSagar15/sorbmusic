@@ -1,104 +1,102 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const track = document.querySelector('.slider-track');
-    const gallery = document.querySelector('.photo-gallery');
+/*
+  Updated carousel logic:
+  - Shows `visibleCount` slides (3) at once
+  - Uses cloned slides at start/end for seamless infinite loop
+  - Advances by one slide on a timer
+*/
+document.addEventListener('DOMContentLoaded', init);
 
-    if (!track || !gallery) return;
+function init() {
+    const carousel = document.querySelector('.carousel');
+    if (!carousel) return;
+    const track = carousel.querySelector('.carousel-track');
+    if (!track) return;
 
-    const slides = Array.from(track.children);
-    if (slides.length === 0) return;
+    const visibleCount = 3;
+    let autoTimer = null;
+    let slideWidth = 0;
+    let currentIndex = visibleCount; // start at first real slide after prepended clones
 
-    const originalCount = slides.length;
-    // Number of clones should be at least the maximum number of visible slides
-    const clonesCount = 4;
+    // Clean previous clones if re-initialized
+    track.querySelectorAll('.clone').forEach(n => n.remove());
 
-    // Clone first and last slides
-    const firstClones = slides.slice(0, clonesCount).map(slide => slide.cloneNode(true));
-    const lastClones = slides.slice(-clonesCount).map(slide => slide.cloneNode(true));
+    const originalSlides = Array.from(track.querySelectorAll('.slide'));
+    const originalCount = originalSlides.length;
+    if (originalCount === 0) return;
 
-    // Prepend last clones and append first clones
-    [...lastClones].reverse().forEach(clone => track.prepend(clone));
-    firstClones.forEach(clone => track.append(clone));
+    // Clone last visibleCount slides to the start (in reverse order), and first visibleCount to the end
+    for (let i = 0; i < visibleCount; i++) {
+        const cloneStart = originalSlides[originalCount - 1 - i].cloneNode(true);
+        cloneStart.classList.add('clone');
+        track.insertBefore(cloneStart, track.firstChild);
+    }
+    for (let i = 0; i < visibleCount; i++) {
+        const cloneEnd = originalSlides[i].cloneNode(true);
+        cloneEnd.classList.add('clone');
+        track.appendChild(cloneEnd);
+    }
 
     const allSlides = Array.from(track.children);
-    let currentIndex = clonesCount;
-    let isTransitioning = false;
+    const realCount = originalCount;
 
-    // Helper to get current slide width including gap
-    const getStepWidth = () => {
-        const firstSlide = allSlides[0];
-        const style = window.getComputedStyle(track);
-        const gap = parseFloat(style.gap) || 0;
-        return firstSlide.offsetWidth + gap;
-    };
-
-    // Update track position
-    const updatePosition = (transition = true) => {
-        const stepWidth = getStepWidth();
-        if (stepWidth === 0) return;
-
-        track.style.transition = transition ? 'transform 0.5s ease-in-out, opacity 0.5s ease' : 'none';
-        track.style.transform = `translateX(-${currentIndex * stepWidth}px)`;
-    };
-
-    // Main rotation function
-    const nextSlide = () => {
-        if (isTransitioning) return;
-        currentIndex++;
-        isTransitioning = true;
+    // Set sizes
+    function setSlideSizes() {
+        slideWidth = carousel.clientWidth / visibleCount;
+        allSlides.forEach(s => {
+            s.style.width = `${slideWidth}px`;
+        });
+        // Position at the currentIndex without transition
+        track.style.transition = 'none';
         updatePosition();
-    };
+        // Force reflow then restore transition
+        void track.offsetWidth;
+        track.style.transition = 'transform 0.5s ease';
+    }
 
-    // Handle transition end for infinite loop jump
-    track.addEventListener('transitionend', (e) => {
-        // Only handle transform transition
-        if (e.propertyName !== 'transform') return;
+    function updatePosition() {
+        track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+    }
 
-        isTransitioning = false;
+    function nextSlide() {
+        currentIndex++;
+        track.style.transition = 'transform 0.5s ease';
+        updatePosition();
+    }
 
-        // If we reached the end clones
-        if (currentIndex >= originalCount + clonesCount) {
-            currentIndex -= originalCount;
-            updatePosition(false);
+    // Handle loop reset after transition when we moved into cloned area
+    track.addEventListener('transitionend', () => {
+        // if we've moved past the last real slide, jump back to the equivalent real index
+        if (currentIndex >= realCount + visibleCount) {
+            // disable transition for the jump
+            track.style.transition = 'none';
+            currentIndex = visibleCount;
+            updatePosition();
+            // allow transitions again
+            void track.offsetWidth;
+            track.style.transition = 'transform 0.5s ease';
         }
-        // If we reached the start clones
-        else if (currentIndex < clonesCount) {
-            currentIndex += originalCount;
-            updatePosition(false);
+    });
+
+    // Auto rotate
+    function startAutoRotate(interval = 3000) {
+        stopAutoRotate();
+        autoTimer = setInterval(nextSlide, interval);
+    }
+    function stopAutoRotate() {
+        if (autoTimer) {
+            clearInterval(autoTimer);
+            autoTimer = null;
         }
-    });
+    }
 
-    // Auto-rotation setup
-    let rotationInterval = setInterval(nextSlide, 3000);
+    // Recompute sizes on resize
+    window.addEventListener('resize', setSlideSizes);
 
-    // Pause on hover
-    gallery.addEventListener('mouseenter', () => {
-        clearInterval(rotationInterval);
-    });
+    // Initialize sizes and start
+    setSlideSizes();
+    startAutoRotate(2500);
 
-    // Resume on mouse leave
-    gallery.addEventListener('mouseleave', () => {
-        clearInterval(rotationInterval);
-        rotationInterval = setInterval(nextSlide, 3000);
-    });
-
-    // Handle window resize
-    window.addEventListener('resize', () => {
-        updatePosition(false);
-    });
-
-    // Initial position set and reveal
-    const init = () => {
-        const stepWidth = getStepWidth();
-        if (stepWidth === 0) {
-            requestAnimationFrame(init);
-            return;
-        }
-        updatePosition(false);
-        // Small delay to ensure transform is applied before showing
-        setTimeout(() => {
-            track.style.opacity = '1';
-        }, 50);
-    };
-
-    init();
-});
+    // Optional: pause on hover
+    carousel.addEventListener('mouseenter', stopAutoRotate);
+    carousel.addEventListener('mouseleave', () => startAutoRotate(2500));
+}

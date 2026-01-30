@@ -287,6 +287,30 @@ body::before {
     transform: scale(1.05);
 }
 
+/* Carousel: show 3 slides at a time */
+.carousel {
+    overflow: hidden;
+    position: relative;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease;
+    will-change: transform;
+}
+
+.carousel-track .slide {
+    flex: 0 0 calc(100% / 3); /* 3 slides visible */
+    box-sizing: border-box;
+}
+
+/* Optional: ensure images fill slides */
+.carousel-track .slide img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
 /* Contact Section */
 .contact {
     background-color: var(--primary-color);
