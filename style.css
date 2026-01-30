@@ -282,14 +282,17 @@ body::before {
 
 .carousel-track .slide {
     flex: 0 0 calc(100% / 3); /* 3 slides visible */
-    box-sizing: border-box;
+    padding: 0 0.75rem; /* Creates a 1.5rem gap between slides */
 }
 
 /* Optional: ensure images fill slides */
 .carousel-track .slide img {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover; /* Ensures image covers the area without distortion */
+    aspect-ratio: 1 / 1; /* Makes all images square */
+    border-radius: 8px; /* Matches the style of the old gallery */
 }
 
 /* Contact Section */
