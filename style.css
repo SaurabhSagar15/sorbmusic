@@ -157,12 +157,30 @@ body::before {
 .about-content {
     max-width: 1130px;
     margin: 0 auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 3rem;
+}
+
+.about-image {
+    flex: 0 0 40%;
+    position: sticky;
+    top: 120px; /* Header height + some padding */
+    align-self: flex-start;
+}
+
+.about-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
 }
 
 .about-text {
+    flex: 1;
     font-size: 1.1rem;
     line-height: 1.8;
-    text-align: center;
+    text-align: left;
 }
 
 .about-intro {
@@ -366,5 +384,11 @@ body::before {
 
     .photo-gallery {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .about-content {
+        flex-direction: column;
     }
 }
