@@ -287,13 +287,12 @@ body::before {
 
 .carousel-track {
     display: flex;
-    transition: transform 0.5s ease;
-    will-change: transform;
 }
 
 .carousel-track .slide {
-    flex: 0 0 calc(100% / 3); /* 3 slides visible */
-    padding: 0 0.75rem; /* Creates a 1.5rem gap between slides */
+    /* Flex and width will be controlled by JS, but padding can stay */
+    padding: 0 0.75rem;
+    flex-shrink: 0; /* Prevent slides from shrinking */
 }
 
 /* Optional: ensure images fill slides */
@@ -437,9 +436,9 @@ body::before {
         gap: 1.5rem;
     }
 
-    /* Carousel: show 1 slide on mobile */
+    /* Carousel: show 2 slides on mobile (handled by JS, but good to have a fallback) */
     .carousel-track .slide {
-        flex: 0 0 100%;
+        flex: 0 0 50%;
         padding: 0 0.5rem;
     }
 

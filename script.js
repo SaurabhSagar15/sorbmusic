@@ -1,9 +1,3 @@
-/*
-  Updated carousel logic:
-  - Shows `visibleCount` slides (3) at once
-  - Uses cloned slides at start/end for seamless infinite loop
-  - Advances by one slide on a timer
-*/
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
@@ -11,11 +5,11 @@ function init() {
     if (!carousel) return;
     const track = carousel.querySelector('.carousel-track');
     if (!track) return;
-
-    const visibleCount = 3;
+    
+    let visibleCount = getVisibleCount();
     let autoTimer = null;
     let slideWidth = 0;
-    let currentIndex = visibleCount; // start at first real slide after prepended clones
+    let currentIndex = 0; // Will be set after cloning
 
     // Clean previous clones if re-initialized
     track.querySelectorAll('.clone').forEach(n => n.remove());
@@ -23,6 +17,17 @@ function init() {
     const originalSlides = Array.from(track.querySelectorAll('.slide'));
     const originalCount = originalSlides.length;
     if (originalCount === 0) return;
+    
+    // Function to determine slides to show based on window width
+    function getVisibleCount() {
+        if (window.innerWidth <= 768) {
+            return 2; // 2 slides for mobile
+        }
+        if (window.innerWidth <= 992) {
+            return 2; // 2 slides for tablet
+        }
+        return 3; // 3 slides for desktop
+    }
 
     // Clone last visibleCount slides to the start (in reverse order), and first visibleCount to the end
     for (let i = 0; i < visibleCount; i++) {
@@ -37,10 +42,13 @@ function init() {
     }
 
     const allSlides = Array.from(track.children);
-    const realCount = originalCount;
+    currentIndex = visibleCount; // Start at the first real slide
 
     // Set sizes
     function setSlideSizes() {
+        // Recalculate visible count on resize
+        visibleCount = getVisibleCount();
+
         slideWidth = carousel.clientWidth / visibleCount;
         allSlides.forEach(s => {
             s.style.width = `${slideWidth}px`;
@@ -66,7 +74,7 @@ function init() {
     // Handle loop reset after transition when we moved into cloned area
     track.addEventListener('transitionend', () => {
         // if we've moved past the last real slide, jump back to the equivalent real index
-        if (currentIndex >= realCount + visibleCount) {
+        if (currentIndex >= originalCount + visibleCount) {
             // disable transition for the jump
             track.style.transition = 'none';
             currentIndex = visibleCount;
@@ -90,7 +98,11 @@ function init() {
     }
 
     // Recompute sizes on resize
-    window.addEventListener('resize', setSlideSizes);
+    window.addEventListener('resize', () => {
+        // A full re-initialization is safer on resize if visibleCount changes
+        stopAutoRotate();
+        init(); // Re-run the whole setup
+    });
 
     // Initialize sizes and start
     setSlideSizes();
