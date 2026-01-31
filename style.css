@@ -158,16 +158,9 @@ body::before {
     max-width: 1130px;
     margin: 0 auto;
     display: flex;
-    align-items: flex-start;
     gap: 3rem;
 }
 
-.about-image {
-    flex: 0 0 40%;
-    position: sticky;
-    top: 120px; /* Header height + some padding */
-    align-self: flex-start;
-}
 
 .about-image img {
     width: 100%;
@@ -386,26 +379,77 @@ body::before {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .nav a {
+        font-size: 0.8rem;
+        gap: 1.5rem;
+    }
+
     .header .container {
         flex-direction: column;
         gap: 1rem;
     }
 
     .nav {
-        gap: 1rem;
+        gap: 1.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 
     .hero-title {
         font-size: 3rem;
         letter-spacing: 5px;
     }
-
+    
     .hero-subtitle {
         font-size: 1.2rem;
     }
 
+    .section {
+        padding: 3rem 0;
+    }
+
     .section-title {
         font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .about-image {
+        position: static; /* Remove sticky behavior on mobile */
+        top: auto;
+        margin-bottom: 2rem;
+    }
+
+    .about-text {
+        font-size: 1rem;
+    }
+
+    .about-intro {
+        font-size: 1.1rem;
+    }
+
+    .category-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .music-embeds {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    /* Carousel: show 1 slide on mobile */
+    .carousel-track .slide {
+        flex: 0 0 100%;
+        padding: 0 0.5rem;
+    }
+
+    .social-link {
+        font-size: 1rem;
+        padding: 0.8rem 1.5rem;
+    }
+
+    .footer {
+        padding: 1.5rem 0;
     }
 
 
@@ -417,5 +461,26 @@ body::before {
 @media (max-width: 992px) {
     .about-content {
         flex-direction: column;
+        gap: 2rem;
+    }
+
+    .about-image {
+        position: static;
+        flex: 1; /* Allow image to take full width in column layout */
+    }
+    /* Carousel: show 2 slides on tablets */
+    .carousel-track .slide {
+        flex: 0 0 50%;
+        padding: 0 0.75rem;
+    }
+}
+
+/* Add sticky position only for desktop screens */
+@media (min-width: 993px) {
+    .about-image {
+        position: sticky;
+        top: 120px; /* Header height + some padding */
+        flex: 0 0 40%;
+        align-self: flex-start;
     }
 }
